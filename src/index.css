@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background:         0 0% 100%;
+    --foreground:         160 15% 10%;
+    --card:               0 0% 100%;
+    --card-foreground:    160 15% 10%;
+    --border:             150 20% 88%;
+    --input:              150 20% 88%;
+    --ring:               142 70% 35%;
+    --primary:            142 70% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary:          140 30% 95%;
+    --secondary-foreground: 142 60% 25%;
+    --muted:              140 20% 96%;
+    --muted-foreground:   160 10% 50%;
+    --accent:             140 30% 92%;
+    --accent-foreground:  142 60% 25%;
+    --destructive:        0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --radius:             0.75rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground font-body;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3,h4,h5,h6 { @apply font-display; }
+}
+
+@layer utilities {
+  .container-herb {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-display font-semibold;
+  }
+}
