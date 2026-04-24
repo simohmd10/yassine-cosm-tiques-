@@ -12,7 +12,7 @@ import { useAdminAuth } from "@/context/AdminAuthContext";
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 // FIX H-1: Settings now persist to Supabase store_settings table.
-// Each setting is a key-value row: { key: "store_name", value: "Serene Beauty" }
+// Each setting is a key-value row: { key: "store_name", value: "iherbyassine" }
 
 async function loadSettings(): Promise<Record<string, string>> {
   const { data, error } = await supabase.from("store_settings").select("key, value");
@@ -56,8 +56,8 @@ export default function Settings() {
   const { userEmail } = useAdminAuth();
 
   const [store, setStore] = useState({
-    name:        "Serene Beauty",
-    email:       "contact@serenebeauty.com",
+    name:        "iherbyassine",
+    email:       "contact@iherbyassine.ma",
     phone:       "+1-800-SERENE",
     currency:    "USD",
     description: "Premium cosmetics designed to enhance your natural beauty.",
@@ -80,8 +80,8 @@ export default function Settings() {
     loadSettings()
       .then((saved) => {
         setStore({
-          name:        saved.store_name        ?? "Serene Beauty",
-          email:       saved.store_email       ?? "contact@serenebeauty.com",
+          name:        saved.store_name        ?? "iherbyassine",
+          email:       saved.store_email       ?? "contact@iherbyassine.ma",
           phone:       saved.store_phone       ?? "+1-800-SERENE",
           currency:    saved.store_currency    ?? "USD",
           description: saved.store_description ?? "Premium cosmetics designed to enhance your natural beauty.",
@@ -257,7 +257,7 @@ export default function Settings() {
           </div>
           <div className="flex justify-between">
             <span>Platform</span>
-            <span className="font-medium text-gray-900">Serene Beauty Admin</span>
+            <span className="font-medium text-gray-900">iherbyassine Admin</span>
           </div>
           <div className="flex justify-between">
             <span>Admin Email</span>
