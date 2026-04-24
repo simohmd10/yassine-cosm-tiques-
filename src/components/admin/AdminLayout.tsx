@@ -31,7 +31,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           <Store className="w-4 h-4 text-white" />
         </div>
         <div>
-          <p className="font-semibold text-gray-900 text-sm">Serene Beauty</p>
+          <p className="font-semibold text-gray-900 text-sm">iherbyassine</p>
           <p className="text-xs text-gray-500">Admin Panel</p>
         </div>
       </div>
