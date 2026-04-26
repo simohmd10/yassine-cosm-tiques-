@@ -47,13 +47,14 @@ export interface InsertOrderPayload {
   id:string; order_ref:string; customer:string; email:string; phone:string;
   address:string; city:string; state:string; zip:string; country:string;
   status:Order["status"]; total:number; items:OrderItem[]; paymentMethod:string;
-  couponCode?:string; discountAmount?:number;
+  idempotencyKey:string; couponCode?:string; discountAmount?:number;
 }
 
 export interface InsertOrderResult { verifiedTotal:number; orderId:string; accessToken:string; idempotent:boolean; }
 
 export async function insertOrder(order: InsertOrderPayload): Promise<InsertOrderResult> {
   if (order.items.length === 0) throw new Error("Votre panier est vide.");
+  if (!order.idempotencyKey?.trim()) throw new Error("Clé d'idempotence manquante.");
   const seenIds = new Set(order.items.map(i => i.productId));
   if (seenIds.size !== order.items.length) throw new Error("Articles dupliqués dans le panier.");
   const invalid = order.items.filter(i => !i.productId || i.quantity <= 0 || i.quantity > 999);
@@ -70,7 +71,7 @@ export async function insertOrder(order: InsertOrderPayload): Promise<InsertOrde
     p_total:          order.total,
     p_payment_method: order.paymentMethod,
     p_items:          order.items.map(i => ({ product_id: i.productId, quantity: i.quantity })),
-    p_idempotency_key: null,
+    p_idempotency_key: order.idempotencyKey,
     p_coupon_code:    order.couponCode ?? null,
     p_discount_amount: order.discountAmount ?? 0,
   });

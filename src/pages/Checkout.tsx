@@ -72,6 +72,7 @@ export default function Checkout() {
         status: "pending", total: finalTotal,
         items: items.map(i=>({ productId: i.product.id, name: i.product.name, quantity: i.quantity, price: i.product.price })),
         paymentMethod: "cash_on_delivery",
+        idempotencyKey: orderId,
         couponCode: couponCode || undefined,
         discountAmount: discount,
       });
