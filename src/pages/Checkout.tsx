@@ -12,6 +12,9 @@ import { useLang } from "@/context/LanguageContext";
 import { insertOrder, validateCoupon } from "@/hooks/useOrders";
 import { COUNTRIES } from "@/data/countries";
 
+const ORDER_SESSION_PREFIX = "order_session_";
+const ORDER_TOKEN_TTL_MS = 90 * 60 * 1000; // 90 minutes
+
 const schema = z.object({
   email:     z.string().email(),
   firstName: z.string().min(2),
@@ -79,7 +82,14 @@ export default function Checkout() {
       setOrderRef(ref);
       setAccessToken(result.accessToken);
       setConfirmedTotal(result.verifiedTotal);
-      if (result.accessToken) localStorage.setItem(`order_token_${ref}`, JSON.stringify({ orderRef:ref, accessToken:result.accessToken, placedAt:new Date().toISOString() }));
+      if (result.accessToken) {
+        const placedAt = new Date().toISOString();
+        const expiresAt = new Date(Date.now() + ORDER_TOKEN_TTL_MS).toISOString();
+        sessionStorage.setItem(
+          `${ORDER_SESSION_PREFIX}${ref}`,
+          JSON.stringify({ orderRef: ref, accessToken: result.accessToken, placedAt, expiresAt })
+        );
+      }
       setPlaced(true);
       clearCart();
       window.scrollTo({ top:0, behavior:"smooth" });
