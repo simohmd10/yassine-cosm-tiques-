@@ -110,16 +110,51 @@ export function useInvalidateOrders() {
   return () => qc.invalidateQueries({ queryKey: ["orders"] });
 }
 
-export interface Review { id:string; product_id:string; user_id:string|null; user_name:string; rating:number; comment:string; created_at:string; }
-
-export async function fetchProductReviews(productId:string): Promise<Review[]> {
-  const { data, error } = await supabase.from("reviews").select("*").eq("product_id", productId).order("created_at", { ascending:false });
-  if (error) return [];
-  return data as Review[];
+export interface Review {
+  id: string;
+  product_id: string;
+  user_id: string | null;
+  user_name: string;
+  rating: number;
+  comment: string;
+  created_at: string;
 }
 
-export async function submitReview(review: Omit<Review,"id"|"created_at">): Promise<void> {
-  const { error } = await supabase.from("reviews").insert([review]);
+function normaliseRating(raw: unknown): number {
+  const n = Math.round(Number(raw));
+  return Number.isFinite(n) ? Math.min(5, Math.max(1, n)) : 5;
+}
+
+export async function fetchProductReviews(productId: string): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false });
+  if (error) return [];
+  if (!Array.isArray(data)) return [];
+  return data.map((r) => ({
+    id:         String(r.id ?? ""),
+    product_id: String(r.product_id ?? ""),
+    user_id:    r.user_id ?? null,
+    user_name:  typeof r.user_name === "string" ? r.user_name : "",
+    rating:     normaliseRating(r.rating),
+    comment:    typeof r.comment === "string" ? r.comment : "",
+    created_at: typeof r.created_at === "string" ? r.created_at : new Date().toISOString(),
+  }));
+}
+
+export async function submitReview(review: Omit<Review, "id" | "created_at">): Promise<void> {
+  const comment = review.comment?.trim() ?? "";
+  if (!comment) throw new Error("Le commentaire ne peut pas être vide.");
+  const payload = {
+    product_id: review.product_id,
+    user_id:    review.user_id,
+    user_name:  review.user_name?.trim() || "Client",
+    rating:     normaliseRating(review.rating),
+    comment,
+  };
+  const { error } = await supabase.from("reviews").insert([payload]);
   if (error) throw new Error(error.message);
 }
 
