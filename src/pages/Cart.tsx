@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -5,10 +6,18 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
+import { useProducts } from "@/hooks/useProducts";
+import ProductCard from "@/components/ProductCard";
+import { getCartUpsellProducts } from "@/lib/recommendations";
 
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, totalPrice } = useCart();
   const { lang, t } = useLang();
+  const { data: allProducts = [] } = useProducts();
+  const upsellProducts = useMemo(
+    () => getCartUpsellProducts(items.map((i) => i.product), allProducts, 4),
+    [items, allProducts]
+  );
 
   if (items.length === 0) return (
     <div className="min-h-screen bg-background">
@@ -89,6 +98,15 @@ export default function Cart() {
             </div>
           </div>
         </div>
+
+        {upsellProducts.length > 0 && (
+          <div className="mt-10">
+            <h2 className="font-display text-xl font-bold mb-6">{lang === "fr" ? "Vous aimerez aussi" : "You may also like"}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {upsellProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </div>

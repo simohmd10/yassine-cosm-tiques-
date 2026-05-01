@@ -14,10 +14,70 @@ const STATUS_CONFIG: Record<string,{label:string;labelFr:string;icon:React.Eleme
   cancelled:  {label:"Cancelled",    labelFr:"Annulée",          icon:XCircle,     color:"text-red-600",   bg:"bg-red-50",   step:0},
 };
 const STEPS = ["pending","processing","shipped","delivered"];
+const ORDER_SESSION_PREFIX = "order_session_";
+const ORDER_LEGACY_PREFIX = "order_token_";
+const ORDER_TOKEN_TTL_MS = 90 * 60 * 1000; // 90 minutes
+const LEGACY_MIGRATION_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-interface Saved { orderRef:string; accessToken:string; placedAt:string; }
+interface Saved { orderRef:string; accessToken:string; placedAt:string; expiresAt:string; }
+interface LegacySaved { orderRef:string; accessToken:string; placedAt:string; }
+
+function isUuid(v:string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+}
+
+function isOrderRef(v:string): boolean {
+  return /^IH-[A-Z0-9]{6,}$/.test(v);
+}
+
+function parseSaved(raw: unknown): Saved | null {
+  if (!raw || typeof raw !== "object") return null;
+  const rec = raw as Partial<Saved>;
+  if (!rec.orderRef || typeof rec.orderRef !== "string" || !isOrderRef(rec.orderRef)) return null;
+  if (!rec.accessToken || typeof rec.accessToken !== "string" || !isUuid(rec.accessToken)) return null;
+  if (!rec.placedAt || typeof rec.placedAt !== "string" || Number.isNaN(Date.parse(rec.placedAt))) return null;
+  if (!rec.expiresAt || typeof rec.expiresAt !== "string" || Number.isNaN(Date.parse(rec.expiresAt))) return null;
+  if (Date.parse(rec.expiresAt) <= Date.now()) return null;
+  return { orderRef: rec.orderRef, accessToken: rec.accessToken, placedAt: rec.placedAt, expiresAt: rec.expiresAt };
+}
+
+function migrateRecentLegacyTokens() {
+  const now = Date.now();
+  const keys = Object.keys(localStorage).filter(k => k.startsWith(ORDER_LEGACY_PREFIX));
+  for (const key of keys) {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(key) ?? "null") as LegacySaved | null;
+      if (!parsed || typeof parsed !== "object") continue;
+      const placedMs = Date.parse(parsed.placedAt);
+      const isRecent = !Number.isNaN(placedMs) && (now - placedMs) <= LEGACY_MIGRATION_MAX_AGE_MS;
+      if (!isRecent) continue;
+      if (!isOrderRef(parsed.orderRef) || !isUuid(parsed.accessToken)) continue;
+      const expiresAt = new Date(Math.min(placedMs + ORDER_TOKEN_TTL_MS, now + ORDER_TOKEN_TTL_MS)).toISOString();
+      const migrated: Saved = { orderRef: parsed.orderRef, accessToken: parsed.accessToken, placedAt: parsed.placedAt, expiresAt };
+      if (Date.parse(migrated.expiresAt) > now) {
+        sessionStorage.setItem(`${ORDER_SESSION_PREFIX}${migrated.orderRef}`, JSON.stringify(migrated));
+      }
+    } catch {
+      // ignore malformed entries
+    } finally {
+      // Always remove legacy token so no access tokens remain in localStorage.
+      localStorage.removeItem(key);
+    }
+  }
+}
+
 function getSaved():Saved[] {
-  try { return Object.keys(localStorage).filter(k=>k.startsWith("order_token_")).map(k=>JSON.parse(localStorage.getItem(k)??"null")).filter(Boolean).sort((a:Saved,b:Saved)=>new Date(b.placedAt).getTime()-new Date(a.placedAt).getTime()); }
+  try {
+    const keys = Object.keys(sessionStorage).filter(k => k.startsWith(ORDER_SESSION_PREFIX));
+    const out: Saved[] = [];
+    for (const key of keys) {
+      const parsed = JSON.parse(sessionStorage.getItem(key) ?? "null");
+      const safe = parseSaved(parsed);
+      if (safe) out.push(safe);
+      else sessionStorage.removeItem(key);
+    }
+    return out.sort((a,b)=>new Date(b.placedAt).getTime()-new Date(a.placedAt).getTime());
+  }
   catch { return []; }
 }
 
@@ -31,7 +91,10 @@ export default function OrderStatus() {
   const [loading,     setLoading]     = useState(false);
   const [saved,       setSaved]       = useState<Saved[]>([]);
 
-  useEffect(()=>{ setSaved(getSaved()); },[]);
+  useEffect(()=>{
+    migrateRecentLegacyTokens();
+    setSaved(getSaved());
+  },[]);
 
   const handleCheck = async(e:React.FormEvent)=>{
     e.preventDefault();

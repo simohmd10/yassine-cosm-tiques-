@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Star, ShoppingCart, Heart, ArrowLeft, Plus, Minus, MessageSquare } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLang } from "@/context/LanguageContext";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { getRelatedProducts } from "@/lib/recommendations";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -39,7 +40,10 @@ export default function ProductDetail() {
   const name        = lang === "fr" ? (product.nameFr || product.name) : product.name;
   const description = lang === "fr" ? (product.descriptionFr || product.description) : product.description;
   const inWish      = isInWishlist(product.id);
-  const related     = allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0,4);
+  const related = useMemo(
+    () => getRelatedProducts(product, allProducts, 6),
+    [product, allProducts]
+  );
 
   const handleAdd = () => {
     addToCart(product, qty);

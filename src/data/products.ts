@@ -17,6 +17,7 @@ export interface Product {
   stock:         number;
   flavors?:      string[];
   weight?:       string;
+  relatedProducts?: string[];
 }
 
 export const categories = [
