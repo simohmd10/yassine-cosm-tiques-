@@ -8,18 +8,11 @@ interface AdminAuthContextType {
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType|null>(null);
-
-const SS_COUNT="sb_login_attempts"; const SS_LOCKED="sb_login_locked_until";
-const RATE={maxAttempts:5,windowMs:10*60*1000};
-
-function getCount(){ return parseInt(sessionStorage.getItem(SS_COUNT)??"0",10); }
-function getLocked(){ return parseInt(sessionStorage.getItem(SS_LOCKED)??"0",10); }
-function recordFail(){
-  const c=getCount()+1; sessionStorage.setItem(SS_COUNT,String(c));
-  if(c>=RATE.maxAttempts){ const u=Date.now()+RATE.windowMs; sessionStorage.setItem(SS_LOCKED,String(u)); sessionStorage.setItem(SS_COUNT,"0"); return "Trop de tentatives. Connexion bloquée 10 minutes."; }
-  return `Email ou mot de passe invalide. ${RATE.maxAttempts-c} tentative(s) restante(s).`;
+const GENERIC_LOGIN_ERROR = "Email ou mot de passe invalide.";
+function getDeviceFingerprint() {
+  if (typeof navigator === "undefined") return "unknown";
+  return navigator.userAgent.slice(0, 180);
 }
-function resetRate(){ sessionStorage.removeItem(SS_COUNT); sessionStorage.removeItem(SS_LOCKED); }
 
 async function fetchIsAdmin(userId:string):Promise<boolean> {
   const {data}=await supabase.from("profiles").select("role").eq("id",userId).single();
@@ -43,15 +36,25 @@ export function AdminAuthProvider({children}:{children:React.ReactNode}){
   },[]);
 
   const login=async(email:string,password:string)=>{
-    const now=Date.now(); const locked=getLocked();
-    if(locked>now){ const m=Math.ceil((locked-now)/60_000); return{ok:false,error:`Connexion bloquée. Réessayez dans ${m} minute(s).`}; }
-    const{data,error}=await supabase.auth.signInWithPassword({email,password});
-    if(error||!data.user) return{ok:false,error:recordFail()};
-    if(!data.user.email_confirmed_at){await supabase.auth.signOut();return{ok:false,error:"Vérifiez votre email avant de vous connecter."};}
-    const admin=await fetchIsAdmin(data.user.id);
-    if(!admin){await supabase.auth.signOut();recordFail();return{ok:false,error:"Accès refusé. Ce compte n'a pas les privilèges admin."};}
-    resetRate(); setIsAuthenticated(true); setUserEmail(data.user.email??null);
-    return{ok:true};
+    const { data, error } = await supabase.functions.invoke<{
+      ok:boolean;
+      session?:{ access_token:string; refresh_token:string; };
+      error?:string;
+    }>("admin-login", {
+      body: { email, password, deviceFingerprint: getDeviceFingerprint() },
+    });
+    if (error || !data?.ok || !data.session) return { ok:false, error:GENERIC_LOGIN_ERROR };
+    const { error: setSessionError } = await supabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+    });
+    if (setSessionError) return { ok:false, error:GENERIC_LOGIN_ERROR };
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return { ok:false, error:GENERIC_LOGIN_ERROR };
+    const admin=await fetchIsAdmin(userData.user.id);
+    if(!admin){ await supabase.auth.signOut(); return { ok:false, error:GENERIC_LOGIN_ERROR }; }
+    setIsAuthenticated(true); setUserEmail(userData.user.email??null);
+    return { ok:true };
   };
 
   const logout=async()=>{ await supabase.auth.signOut(); };
