@@ -191,6 +191,33 @@ CREATE INDEX IF NOT EXISTS idx_reviews_product        ON reviews(product_id);
 CREATE INDEX IF NOT EXISTS idx_coupons_code           ON coupons(code);
 
 -- ============================================================
+-- 11-bis. ADMIN LOGIN THROTTLE TABLES (P0-3)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS admin_login_attempts (
+  key_hash     text PRIMARY KEY,
+  ip_hash      text NOT NULL,
+  email_hash   text NOT NULL,
+  device_hash  text,
+  attempts     integer NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+  window_start timestamptz NOT NULL DEFAULT now(),
+  locked_until timestamptz,
+  updated_at   timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE admin_login_attempts ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE IF NOT EXISTS admin_login_ip_window (
+  ip_hash       text PRIMARY KEY,
+  attempts      integer NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+  window_start  timestamptz NOT NULL DEFAULT now(),
+  updated_at    timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE admin_login_ip_window ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX IF NOT EXISTS idx_admin_login_attempts_ip_hash ON admin_login_attempts(ip_hash);
+CREATE INDEX IF NOT EXISTS idx_admin_login_attempts_email_hash ON admin_login_attempts(email_hash);
+CREATE INDEX IF NOT EXISTS idx_admin_login_attempts_locked_until ON admin_login_attempts(locked_until);
+
+-- ============================================================
 -- 12. is_admin()
 -- ============================================================
 CREATE OR REPLACE FUNCTION is_admin()

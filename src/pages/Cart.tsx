@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -5,12 +6,22 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
+import { useProducts } from "@/hooks/useProducts";
+import ProductCard from "@/components/ProductCard";
+import { getCartUpsellProducts } from "@/lib/recommendations";
 
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, totalPrice } = useCart();
   const { lang, t } = useLang();
+  const { data: allProducts = [] } = useProducts();
+  const safeItems = Array.isArray(items) ? items : [];
+  const safeProducts = Array.isArray(allProducts) ? allProducts : [];
+  const upsellProducts = useMemo(
+    () => getCartUpsellProducts(safeItems.map((i) => i.product).filter(Boolean), safeProducts, 4),
+    [safeItems, safeProducts]
+  );
 
-  if (items.length === 0) return (
+  if (safeItems.length === 0) return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container-herb py-20 text-center">
@@ -33,7 +44,7 @@ export default function Cart() {
           {/* Items */}
           <div className="lg:col-span-2 space-y-4">
             <AnimatePresence>
-              {items.map(({ product, quantity }) => {
+              {safeItems.map(({ product, quantity }) => {
                 const name = lang === "fr" ? (product.nameFr || product.name) : product.name;
                 return (
                   <motion.div key={product.id} layout initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={{opacity:0,x:-20}}
@@ -89,6 +100,15 @@ export default function Cart() {
             </div>
           </div>
         </div>
+
+        {upsellProducts.length > 0 && (
+          <div className="mt-10">
+            <h2 className="font-display text-xl font-bold mb-6">{lang === "fr" ? "Vous aimerez aussi" : "You may also like"}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {upsellProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </div>
