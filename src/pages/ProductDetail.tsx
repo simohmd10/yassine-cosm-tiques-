@@ -34,16 +34,17 @@ export default function ProductDetail() {
     enabled: !!id,
   });
 
+  const related = useMemo(
+    () => product ? getRelatedProducts(product, allProducts, 6) : [],
+    [product, allProducts]
+  );
+
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"/></div>;
   if (!product) return <div className="min-h-screen flex items-center justify-center"><p>Produit introuvable</p></div>;
 
   const name        = lang === "fr" ? (product.nameFr || product.name) : product.name;
   const description = lang === "fr" ? (product.descriptionFr || product.description) : product.description;
   const inWish      = isInWishlist(product.id);
-  const related = useMemo(
-    () => getRelatedProducts(product, allProducts, 6),
-    [product, allProducts]
-  );
 
   const handleAdd = () => {
     addToCart(product, qty);
