@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { formatCurrency } from "@/lib/formatCurrency";
 import { useAdminData } from "@/context/AdminDataContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,8 +112,8 @@ export default function Products() {
                 </td>
                 <td className="px-4 py-3">
                   <div>
-                    <span className="text-sm font-semibold text-gray-900">${product.price}</span>
-                    {product.originalPrice && <span className="text-xs text-gray-400 line-through ml-1.5">${product.originalPrice}</span>}
+                    <span className="text-sm font-semibold text-gray-900">{formatCurrency(product.price)}</span>
+                    {product.originalPrice && <span className="text-xs text-gray-400 line-through ml-1.5">{formatCurrency(product.originalPrice)}</span>}
                   </div>
                 </td>
                 {/* SECURITY v2: Stock column */}
@@ -157,7 +158,7 @@ export default function Products() {
               <p className="text-sm font-semibold text-gray-900 truncate">{product.name}</p>
               <p className="text-xs text-gray-500 mt-0.5">{categoryLabels[product.category]} · ⭐ {product.rating}</p>
               <div className="flex items-center gap-2 mt-1">
-                <p className="text-sm font-bold text-gray-900">${product.price}</p>
+                <p className="text-sm font-bold text-gray-900">{formatCurrency(product.price)}</p>
                 <StockBadge stock={product.stock ?? 0} />
               </div>
             </div>

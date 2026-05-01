@@ -5,6 +5,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import { useLang } from "@/context/LanguageContext";
 import type { Product } from "@/data/products";
 import { toast } from "sonner";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 interface Props { product: Product; }
 
@@ -71,9 +72,9 @@ export default function ProductCard({ product }: Props) {
 
           <div className="flex items-center justify-between">
             <div>
-              <span className="font-display font-bold text-foreground">{product.price} MAD</span>
+              <span className="font-display font-bold text-foreground">{formatCurrency(product.price)}</span>
               {product.originalPrice && (
-                <span className="text-xs text-muted-foreground line-through ml-1.5">{product.originalPrice} MAD</span>
+                <span className="text-xs text-muted-foreground line-through ml-1.5">{formatCurrency(product.originalPrice)}</span>
               )}
             </div>
             <button onClick={handleAdd} disabled={outOfStock}

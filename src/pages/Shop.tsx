@@ -7,6 +7,7 @@ import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import { useLang } from "@/context/LanguageContext";
 import { categories } from "@/data/products";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 type SortOption = "featured" | "price-asc" | "price-desc" | "rating";
 
@@ -113,7 +114,7 @@ export default function Shop() {
                       onChange={e => setPriceRange([priceRange[0], Number(e.target.value)])}
                       className="w-full accent-primary" />
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>0 MAD</span><span>{priceRange[1]} MAD</span>
+                      <span>{formatCurrency(0)}</span><span>{formatCurrency(priceRange[1])}</span>
                     </div>
                   </div>
                 </div>
