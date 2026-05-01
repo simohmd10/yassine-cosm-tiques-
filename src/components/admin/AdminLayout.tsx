@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard, Package, ShoppingBag, Users,
-  Tag, Settings, Menu, LogOut, Store, MoreHorizontal, ScrollText,
+  Tag, Settings, Menu, LogOut, Store, MoreHorizontal, ScrollText, MessageSquare,
 } from "lucide-react";
 
 const navItems = [
@@ -14,6 +14,7 @@ const navItems = [
   { to: "/admin/orders", icon: ShoppingBag, label: "Orders" },
   { to: "/admin/customers", icon: Users, label: "Customers" },
   { to: "/admin/categories", icon: Tag, label: "Categories" },
+  { to: "/admin/reviews",    icon: MessageSquare, label: "Reviews" },
   { to: "/admin/audit-log",  icon: ScrollText, label: "Audit Log" },
   { to: "/admin/settings",   icon: Settings, label: "Settings" },
 ];
@@ -137,7 +138,7 @@ export default function AdminLayout() {
           <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
             <SheetTrigger
               className={`flex-1 flex flex-col items-center gap-0.5 py-2 transition-colors ${
-                ["/admin/categories", "/admin/settings"].some((p) =>
+                ["/admin/categories", "/admin/reviews", "/admin/audit-log", "/admin/settings"].some((p) =>
                   location.pathname.startsWith(p)
                 )
                   ? "text-rose-500"

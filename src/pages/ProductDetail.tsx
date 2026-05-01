@@ -121,7 +121,7 @@ export default function ProductDetail() {
       setReviewRating(5);
       setHoverRating(0);
       refetchReviews();
-      toast.success(lang === "fr" ? "Avis ajouté" : "Review submitted");
+      toast.success(lang === "fr" ? "Avis soumis — en attente de validation" : "Review submitted — pending approval");
     } catch {
       toast.error(lang === "fr" ? "Erreur lors de l'envoi" : "Failed to submit");
     } finally {

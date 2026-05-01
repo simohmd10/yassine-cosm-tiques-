@@ -1,10 +1,12 @@
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAdminData } from "@/context/AdminDataContext";
+import { fetchAllReviewsAdmin } from "@/hooks/useOrders";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { ShoppingBag, Users, Package, DollarSign, TrendingUp } from "lucide-react";
+import { ShoppingBag, Users, Package, DollarSign, TrendingUp, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "@/lib/formatCurrency";
 
@@ -20,6 +22,13 @@ const SHORT_DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 export default function Dashboard() {
   const { orders, products, customers } = useAdminData();
+
+  const { data: allReviews = [] } = useQuery({
+    queryKey: ["admin-reviews"],
+    queryFn: fetchAllReviewsAdmin,
+    staleTime: 60_000,
+  });
+  const pendingReviewsCount = allReviews.filter((r) => r.status === "pending").length;
 
   const totalRevenue = orders
     .filter((o) => o.status !== "cancelled")
@@ -65,6 +74,18 @@ export default function Dashboard() {
         <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-500 text-sm mt-0.5">Bienvenue sur iherbyassine</p>
       </div>
+
+      {pendingReviewsCount > 0 && (
+        <Link to="/admin/reviews">
+          <div className="flex items-center gap-3 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 hover:bg-yellow-100 transition-colors cursor-pointer">
+            <MessageSquare className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+            <p className="text-sm font-medium text-yellow-800">
+              {pendingReviewsCount} review{pendingReviewsCount !== 1 ? "s" : ""} pending approval
+            </p>
+            <span className="ml-auto text-xs text-yellow-600 font-medium">Review →</span>
+          </div>
+        </Link>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {stats.map((stat) => (
