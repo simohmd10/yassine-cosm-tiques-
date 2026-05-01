@@ -110,6 +110,8 @@ export function useInvalidateOrders() {
   return () => qc.invalidateQueries({ queryKey: ["orders"] });
 }
 
+export type ReviewStatus = "pending" | "approved" | "rejected";
+
 export interface Review {
   id: string;
   product_id: string;
@@ -117,7 +119,12 @@ export interface Review {
   user_name: string;
   rating: number;
   comment: string;
+  status: ReviewStatus;
   created_at: string;
+}
+
+export interface AdminReview extends Review {
+  product_name: string;
 }
 
 function normaliseRating(raw: unknown): number {
@@ -130,6 +137,7 @@ export async function fetchProductReviews(productId: string): Promise<Review[]> 
     .from("reviews")
     .select("*")
     .eq("product_id", productId)
+    .eq("status", "approved")
     .order("created_at", { ascending: false });
   if (error) return [];
   if (!Array.isArray(data)) return [];
@@ -140,8 +148,34 @@ export async function fetchProductReviews(productId: string): Promise<Review[]> 
     user_name:  typeof r.user_name === "string" ? r.user_name : "",
     rating:     normaliseRating(r.rating),
     comment:    typeof r.comment === "string" ? r.comment : "",
+    status:     (r.status as ReviewStatus) ?? "approved",
     created_at: typeof r.created_at === "string" ? r.created_at : new Date().toISOString(),
   }));
+}
+
+export async function fetchAllReviewsAdmin(): Promise<AdminReview[]> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*, products(name)")
+    .order("created_at", { ascending: false });
+  if (error) { if (isDev) console.error("[Supabase] fetchAllReviewsAdmin:", error.message); return []; }
+  if (!Array.isArray(data)) return [];
+  return data.map((r) => ({
+    id:           String(r.id ?? ""),
+    product_id:   String(r.product_id ?? ""),
+    product_name: (r.products as { name?: string } | null)?.name ?? "",
+    user_id:      r.user_id ?? null,
+    user_name:    typeof r.user_name === "string" ? r.user_name : "",
+    rating:       normaliseRating(r.rating),
+    comment:      typeof r.comment === "string" ? r.comment : "",
+    status:       (r.status as ReviewStatus) ?? "pending",
+    created_at:   typeof r.created_at === "string" ? r.created_at : new Date().toISOString(),
+  }));
+}
+
+export async function updateReviewStatus(id: string, status: ReviewStatus): Promise<void> {
+  const { error } = await supabase.from("reviews").update({ status }).eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
 export async function submitReview(review: Omit<Review, "id" | "created_at">): Promise<void> {
@@ -153,6 +187,7 @@ export async function submitReview(review: Omit<Review, "id" | "created_at">): P
     user_name:  review.user_name?.trim() || "Client",
     rating:     normaliseRating(review.rating),
     comment,
+    status:     "pending",
   };
   const { error } = await supabase.from("reviews").insert([payload]);
   if (error) throw new Error(error.message);

@@ -131,9 +131,16 @@ CREATE TABLE IF NOT EXISTS reviews (
   user_name  text    NOT NULL DEFAULT 'Anonyme',
   rating     integer NOT NULL CHECK (rating BETWEEN 1 AND 5),
   comment    text    NOT NULL,
+  status     text    NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
   created_at timestamptz DEFAULT now()
 );
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+
+-- Migration: add status column to existing deployments
+ALTER TABLE reviews ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'pending'
+  CHECK (status IN ('pending','approved','rejected'));
+-- Backfill existing reviews so they remain visible
+UPDATE reviews SET status = 'approved' WHERE status = 'pending';
 
 -- ============================================================
 -- 8. COUPONS
@@ -429,8 +436,9 @@ CREATE POLICY "settings_update" ON store_settings FOR UPDATE USING (is_admin()) 
 -- Audit log: admin read only
 CREATE POLICY "audit_log_select" ON audit_log FOR SELECT USING (is_admin());
 -- Reviews: public read/write (can submit without auth), admin delete
-CREATE POLICY "reviews_select" ON reviews FOR SELECT USING (true);
-CREATE POLICY "reviews_insert" ON reviews FOR INSERT WITH CHECK (true);
+CREATE POLICY "reviews_select" ON reviews FOR SELECT USING (status = 'approved' OR is_admin());
+CREATE POLICY "reviews_insert" ON reviews FOR INSERT WITH CHECK (status = 'pending');
+CREATE POLICY "reviews_update" ON reviews FOR UPDATE USING (is_admin()) WITH CHECK (is_admin());
 CREATE POLICY "reviews_delete" ON reviews FOR DELETE USING (is_admin());
 -- Coupons: admin full, anon can validate via SELECT
 CREATE POLICY "coupons_select" ON coupons FOR SELECT USING (true);

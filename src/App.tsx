@@ -39,6 +39,7 @@ const Customers    = lazy(() => import("./pages/admin/Customers"));
 const Categories   = lazy(() => import("./pages/admin/Categories"));
 const Settings     = lazy(() => import("./pages/admin/Settings"));
 const AuditLog     = lazy(() => import("./pages/admin/AuditLog"));
+const AdminReviews = lazy(() => import("./pages/admin/Reviews"));
 const AdminLayout  = lazy(() => import("./components/admin/AdminLayout"));
 
 const queryClient = new QueryClient({
@@ -77,6 +78,7 @@ function AdminSection() {
           <Route path="customers"         element={<Customers/>}/>
           <Route path="categories"        element={<Categories/>}/>
           <Route path="audit-log"         element={<AuditLog/>}/>
+          <Route path="reviews"           element={<AdminReviews/>}/>
           <Route path="settings"          element={<Settings/>}/>
         </Route>
       </Routes>
