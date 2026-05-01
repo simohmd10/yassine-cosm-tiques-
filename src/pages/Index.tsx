@@ -24,12 +24,17 @@ export default function Index() {
       <Navbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 text-white">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{backgroundImage:"radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize:"40px 40px"}} />
-        </div>
+      <section
+        className="relative overflow-hidden bg-cover bg-center text-white min-h-[480px] md:min-h-[560px]"
+        style={{ backgroundImage: "url('/hero-banner.jpg')" }}
+      >
+        {/* Dark green gradient overlay — left heavy so text stays readable */}
+        <div className="absolute inset-0 bg-gradient-to-r from-green-950/90 via-green-900/70 to-green-900/20" />
+
         <div className="container-herb relative py-20 md:py-32">
-          <div className="max-w-2xl">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+
+            {/* Left — text content */}
             <motion.div initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} transition={{duration:0.6}}>
               <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full mb-6">
                 <Zap className="w-3.5 h-3.5" />
@@ -50,6 +55,24 @@ export default function Index() {
                 </Link>
               </div>
             </motion.div>
+
+            {/* Right — subtle decorative badge (desktop only) */}
+            <motion.div
+              className="hidden md:flex justify-center items-center"
+              initial={{opacity:0, scale:0.85}}
+              animate={{opacity:1, scale:1}}
+              transition={{duration:0.7, delay:0.2}}
+            >
+              <div className="relative">
+                <div className="w-36 h-36 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex flex-col items-center justify-center text-center shadow-xl">
+                  <span className="text-4xl font-extrabold text-white leading-none">N°1</span>
+                  <span className="text-xs text-green-200 font-semibold mt-1 tracking-wide">au Maroc</span>
+                </div>
+                <div className="absolute -top-5 -right-5 w-16 h-16 rounded-full bg-green-400/20 backdrop-blur-sm border border-green-300/20" />
+                <div className="absolute -bottom-4 -left-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/10" />
+              </div>
+            </motion.div>
+
           </div>
         </div>
       </section>
