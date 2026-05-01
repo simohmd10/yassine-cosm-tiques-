@@ -35,7 +35,7 @@ export default function ProductDetail() {
   });
 
   const related = useMemo(
-    () => product ? getRelatedProducts(product, allProducts, 6) : [],
+    () => product ? getRelatedProducts(product, allProducts, 4) : [],
     [product, allProducts]
   );
 

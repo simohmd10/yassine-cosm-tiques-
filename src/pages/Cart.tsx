@@ -15,7 +15,7 @@ export default function Cart() {
   const { lang, t } = useLang();
   const { data: allProducts = [] } = useProducts();
   const upsellProducts = useMemo(
-    () => getCartUpsellProducts(items.map((i) => i.product), allProducts, 4),
+    () => getCartUpsellProducts(items.map((i) => i.product), allProducts, 3),
     [items, allProducts]
   );
 
