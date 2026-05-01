@@ -11,6 +11,7 @@ import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import { insertOrder, validateCoupon } from "@/hooks/useOrders";
 import { COUNTRIES } from "@/data/countries";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 const ORDER_SESSION_PREFIX = "order_session_";
 const ORDER_TOKEN_TTL_MS = 90 * 60 * 1000; // 90 minutes
@@ -59,7 +60,7 @@ export default function Checkout() {
     const res = await validateCoupon(couponCode, totalPrice);
     if (!res.valid) { setCouponMsg({ text: res.message||t("invalidCoupon"), ok:false }); setDiscount(0); return; }
     setDiscount(res.discount);
-    setCouponMsg({ text:`${t("couponApplied")} — -${res.discount.toFixed(0)} MAD`, ok:true });
+    setCouponMsg({ text:`${t("couponApplied")} — -${formatCurrency(res.discount)}`, ok:true });
   };
 
   const finalTotal = Math.max(0, totalPrice - discount);
@@ -136,7 +137,7 @@ export default function Checkout() {
                 </div>
                 <div className="flex items-center justify-between font-bold border-t border-border pt-3">
                   <span>{t("total")}</span>
-                  <span className="text-primary">{confirmedTotal.toFixed(0)} MAD</span>
+                  <span className="text-primary">{formatCurrency(confirmedTotal)}</span>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -217,7 +218,7 @@ export default function Checkout() {
                           return(
                             <div key={i.product.id} className="flex justify-between text-sm">
                               <span className="text-foreground truncate mr-2">{name} <span className="text-muted-foreground">×{i.quantity}</span></span>
-                              <span className="font-medium flex-shrink-0">{(i.product.price*i.quantity).toFixed(0)} MAD</span>
+                              <span className="font-medium flex-shrink-0">{formatCurrency(i.product.price*i.quantity)}</span>
                             </div>
                           );
                         })}
@@ -238,11 +239,11 @@ export default function Checkout() {
                       </div>
 
                       <div className="space-y-2 text-sm border-t border-border pt-4 mb-5">
-                        <div className="flex justify-between"><span className="text-muted-foreground">{t("subtotal")}</span><span>{totalPrice.toFixed(0)} MAD</span></div>
-                        {discount>0&&<div className="flex justify-between text-primary"><span>{t("discount")}</span><span>-{discount.toFixed(0)} MAD</span></div>}
+                        <div className="flex justify-between"><span className="text-muted-foreground">{t("subtotal")}</span><span>{formatCurrency(totalPrice)}</span></div>
+                        {discount>0&&<div className="flex justify-between text-primary"><span>{t("discount")}</span><span>-{formatCurrency(discount)}</span></div>}
                         <div className="flex justify-between"><span className="text-muted-foreground">{t("shipping")}</span><span className="text-primary">{t("free")}</span></div>
                         <div className="flex justify-between font-bold text-base border-t border-border pt-2">
-                          <span>{t("total")}</span><span className="text-primary">{finalTotal.toFixed(0)} MAD</span>
+                          <span>{t("total")}</span><span className="text-primary">{formatCurrency(finalTotal)}</span>
                         </div>
                       </div>
 
@@ -255,7 +256,7 @@ export default function Checkout() {
                             <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
                             {lang==="fr"?"Confirmation...":"Processing..."}
                           </span>
-                        ) : `${t("placeOrder")} · ${finalTotal.toFixed(0)} MAD`}
+                        ) : `${t("placeOrder")} · ${formatCurrency(finalTotal)}`}
                       </button>
                     </div>
                   </div>

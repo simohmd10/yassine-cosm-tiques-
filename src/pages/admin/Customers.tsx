@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAdminData } from "@/context/AdminDataContext";
 import { Input } from "@/components/ui/input";
 import { Search, Users, Mail, Phone } from "lucide-react";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 export default function Customers() {
   const { customers } = useAdminData();
@@ -20,7 +21,7 @@ export default function Customers() {
       <div>
         <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Customers</h1>
         <p className="text-gray-500 text-sm mt-0.5">
-          {customers.length} customers · ${totalRevenue.toLocaleString()} total revenue
+          {customers.length} customers · {formatCurrency(totalRevenue)} total revenue
         </p>
       </div>
 
@@ -72,7 +73,7 @@ export default function Customers() {
                   {customer.totalOrders}
                 </td>
                 <td className="px-4 py-3 text-sm font-semibold text-gray-900">
-                  ${customer.totalSpent}
+                  {formatCurrency(customer.totalSpent)}
                 </td>
               </tr>
             ))}
@@ -102,7 +103,7 @@ export default function Customers() {
                 <p className="text-xs text-gray-500 truncate">{customer.email}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-gray-900">${customer.totalSpent}</p>
+                <p className="text-sm font-bold text-gray-900">{formatCurrency(customer.totalSpent)}</p>
                 <p className="text-xs text-gray-400">{customer.totalOrders} orders</p>
               </div>
             </div>

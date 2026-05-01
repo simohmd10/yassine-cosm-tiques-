@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import { ShoppingBag, Users, Package, DollarSign, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 const statusColors: Record<string, string> = {
   pending:    "bg-yellow-100 text-yellow-700",
@@ -52,7 +53,7 @@ export default function Dashboard() {
   }, [orders]);
 
   const stats = [
-    { title: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-green-600",  bg: "bg-green-50",  sub: "All time" },
+    { title: "Total Revenue", value: formatCurrency(totalRevenue), icon: DollarSign, color: "text-green-600",  bg: "bg-green-50",  sub: "All time" },
     { title: "Orders",        value: orders.length,                       icon: ShoppingBag, color: "text-blue-600",   bg: "bg-blue-50",   sub: `${pendingOrders} pending` },
     { title: "Products",      value: products.length,                     icon: Package,     color: "text-purple-600", bg: "bg-purple-50", sub: "In catalog" },
     { title: "Customers",     value: customers.length,                    icon: Users,       color: "text-rose-600",   bg: "bg-rose-50",   sub: "Registered" },
@@ -105,7 +106,7 @@ export default function Dashboard() {
               <YAxis tick={{ fontSize: 12, fill: "#9ca3af" }} axisLine={false} tickLine={false} width={45} />
               <Tooltip
                 contentStyle={{ borderRadius: "8px", border: "1px solid #e5e7eb", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.05)" }}
-                formatter={(v: number) => [`$${v}`, "Revenue"]}
+                formatter={(v: number) => [formatCurrency(v), "Revenue"]}
               />
               <Area type="monotone" dataKey="revenue" stroke="#f43f5e" strokeWidth={2} fill="url(#roseGradient)" />
             </AreaChart>
@@ -135,7 +136,7 @@ export default function Dashboard() {
                     <span className={`text-xs px-2 py-1 rounded-full font-medium capitalize ${statusColors[order.status]}`}>
                       {order.status}
                     </span>
-                    <span className="text-sm font-semibold text-gray-900">${order.total}</span>
+                    <span className="text-sm font-semibold text-gray-900">{formatCurrency(order.total)}</span>
                   </div>
                 </div>
               ))

@@ -59,7 +59,7 @@ export default function Settings() {
     name:        "iherbyassine",
     email:       "contact@iherbyassine.ma",
     phone:       "+1-800-SERENE",
-    currency:    "USD",
+    currency:    "MAD",
     description: "Premium cosmetics designed to enhance your natural beauty.",
   });
 
@@ -83,7 +83,7 @@ export default function Settings() {
           name:        saved.store_name        ?? "iherbyassine",
           email:       saved.store_email       ?? "contact@iherbyassine.ma",
           phone:       saved.store_phone       ?? "+1-800-SERENE",
-          currency:    saved.store_currency    ?? "USD",
+          currency:    saved.store_currency    ?? "MAD",
           description: saved.store_description ?? "Premium cosmetics designed to enhance your natural beauty.",
         });
         setNotifications({

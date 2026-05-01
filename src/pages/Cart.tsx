@@ -9,6 +9,7 @@ import { useLang } from "@/context/LanguageContext";
 import { useProducts } from "@/hooks/useProducts";
 import ProductCard from "@/components/ProductCard";
 import { getCartUpsellProducts } from "@/lib/recommendations";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 export default function Cart() {
   const { items, removeFromCart, updateQuantity, totalPrice } = useCart();
@@ -53,7 +54,7 @@ export default function Cart() {
                     <div className="flex-1 min-w-0">
                       <p className="font-display font-semibold text-sm text-foreground truncate">{name}</p>
                       <p className="text-xs text-muted-foreground capitalize mt-0.5">{product.category}</p>
-                      <p className="font-bold text-foreground mt-1">{product.price} MAD</p>
+                      <p className="font-bold text-foreground mt-1">{formatCurrency(product.price)}</p>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center gap-2">
                           <button onClick={() => updateQuantity(product.id, quantity - 1)} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center hover:bg-primary/10 transition-colors">
@@ -65,7 +66,7 @@ export default function Cart() {
                           </button>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="font-bold text-foreground">{(product.price * quantity).toFixed(0)} MAD</span>
+                          <span className="font-bold text-foreground">{formatCurrency(product.price * quantity)}</span>
                           <button onClick={() => removeFromCart(product.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -83,10 +84,10 @@ export default function Cart() {
             <div className="bg-card border border-border rounded-2xl p-6 sticky top-24">
               <h3 className="font-display font-semibold text-foreground mb-5">{lang === "fr" ? "Récapitulatif" : "Summary"}</h3>
               <div className="space-y-3 text-sm mb-5">
-                <div className="flex justify-between"><span className="text-muted-foreground">{t("subtotal")}</span><span>{totalPrice.toFixed(0)} MAD</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{t("subtotal")}</span><span>{formatCurrency(totalPrice)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">{t("shipping")}</span><span className="text-primary font-medium">{t("free")}</span></div>
                 <div className="border-t border-border pt-3 flex justify-between font-bold text-base">
-                  <span>{t("total")}</span><span>{totalPrice.toFixed(0)} MAD</span>
+                  <span>{t("total")}</span><span>{formatCurrency(totalPrice)}</span>
                 </div>
               </div>
               <Link to="/checkout" className="block w-full bg-primary text-primary-foreground text-center py-3 rounded-xl font-display font-bold hover:bg-primary/90 transition-colors">

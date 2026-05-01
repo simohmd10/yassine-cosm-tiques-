@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAdminData, Order } from "@/context/AdminDataContext";
+import { formatCurrency } from "@/lib/formatCurrency";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -122,7 +123,7 @@ export default function Orders() {
                   </Select>
                 </td>
                 <td className="px-4 py-3 text-sm font-semibold text-gray-900">
-                  ${order.total}
+                  {formatCurrency(order.total)}
                 </td>
                 <td className="px-4 py-3">
                   <Button
@@ -173,7 +174,7 @@ export default function Orders() {
             </div>
             <div className="mt-2.5 pt-2.5 border-t flex items-center justify-between">
               <p className="text-xs text-gray-500">{order.items.length} item(s)</p>
-              <p className="text-sm font-bold text-gray-900">${order.total}</p>
+              <p className="text-sm font-bold text-gray-900">{formatCurrency(order.total)}</p>
             </div>
           </div>
         ))}
@@ -230,13 +231,13 @@ export default function Orders() {
                         {item.name} × {item.quantity}
                       </span>
                       <span className="font-medium text-gray-900">
-                        ${item.price * item.quantity}
+                        {formatCurrency(item.price * item.quantity)}
                       </span>
                     </div>
                   ))}
                   <div className="flex justify-between text-sm font-semibold px-3 py-1.5 border-t mt-1 pt-2">
                     <span>Total</span>
-                    <span>${selected.total}</span>
+                    <span>{formatCurrency(selected.total)}</span>
                   </div>
                 </div>
               </div>

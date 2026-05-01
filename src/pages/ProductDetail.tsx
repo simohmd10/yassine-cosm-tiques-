@@ -13,6 +13,7 @@ import { useLang } from "@/context/LanguageContext";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { getRelatedProducts } from "@/lib/recommendations";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -84,8 +85,8 @@ export default function ProductDetail() {
               <span className="text-sm text-muted-foreground">({product.reviewCount} {t("reviews")})</span>
             </div>
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="font-display text-3xl font-bold text-foreground">{product.price} MAD</span>
-              {product.originalPrice && <span className="text-muted-foreground line-through">{product.originalPrice} MAD</span>}
+              <span className="font-display text-3xl font-bold text-foreground">{formatCurrency(product.price)}</span>
+              {product.originalPrice && <span className="text-muted-foreground line-through">{formatCurrency(product.originalPrice)}</span>}
             </div>
 
             {/* Flavors */}

@@ -95,7 +95,7 @@ export async function validateCoupon(code:string, cartTotal:number): Promise<{va
   if (error || !data) return { valid:false, discount:0, type:"", message:"Code promo invalide" };
   const now = new Date();
   if (data.expires_at && new Date(data.expires_at) < now) return { valid:false, discount:0, type:"", message:"Code promo expiré" };
-  if (data.min_order_amount && cartTotal < data.min_order_amount) return { valid:false, discount:0, type:"", message:`Commande minimum: ${data.min_order_amount} MAD` };
+  if (data.min_order_amount && cartTotal < data.min_order_amount) return { valid:false, discount:0, type:"", message:`Commande minimum: ${new Intl.NumberFormat("fr-MA",{style:"currency",currency:"MAD",minimumFractionDigits:0}).format(data.min_order_amount)}` };
   const discount = data.discount_type === "percentage" ? (cartTotal * data.discount_value / 100) : data.discount_value;
   return { valid:true, discount: Math.min(discount, cartTotal), type: data.discount_type };
 }

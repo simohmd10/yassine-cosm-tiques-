@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { lookupOrder, type OrderLookupResult } from "@/hooks/useOrders";
 import { useLang } from "@/context/LanguageContext";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 const STATUS_CONFIG: Record<string,{label:string;labelFr:string;icon:React.ElementType;color:string;bg:string;step:number}> = {
   pending:    {label:"Order Received",labelFr:"Commande reçue",  icon:Clock,       color:"text-amber-600", bg:"bg-amber-50", step:1},
@@ -167,8 +168,8 @@ export default function OrderStatus() {
             <div className="bg-card border border-border rounded-xl divide-y text-sm">
               <div className="flex justify-between px-4 py-3"><span className="text-muted-foreground">{t("orderDate")}</span><span>{new Date(result.created_at).toLocaleDateString(lang==="fr"?"fr-FR":"en-US",{year:"numeric",month:"long",day:"numeric"})}</span></div>
               <div className="flex justify-between px-4 py-3"><span className="text-muted-foreground">{t("paymentMethod")}</span><span>{t("cashOnDelivery")}</span></div>
-              {result.discount_amount>0&&<div className="flex justify-between px-4 py-3 text-primary"><span>{t("discount")}</span><span>-{result.discount_amount.toFixed(0)} MAD</span></div>}
-              <div className="flex justify-between px-4 py-3 font-bold"><span>{t("total")}</span><span className="text-primary">{Number(result.total).toFixed(0)} MAD</span></div>
+              {result.discount_amount>0&&<div className="flex justify-between px-4 py-3 text-primary"><span>{t("discount")}</span><span>-{formatCurrency(result.discount_amount)}</span></div>}
+              <div className="flex justify-between px-4 py-3 font-bold"><span>{t("total")}</span><span className="text-primary">{formatCurrency(Number(result.total))}</span></div>
             </div>
             {result.items.length>0&&(
               <div className="bg-card border border-border rounded-xl p-4">
@@ -176,7 +177,7 @@ export default function OrderStatus() {
                 {result.items.map((item,i)=>(
                   <div key={i} className="flex justify-between text-sm mb-1.5">
                     <span>{item.name} <span className="text-muted-foreground">×{item.quantity}</span></span>
-                    <span>{(item.price_at_purchase*item.quantity).toFixed(0)} MAD</span>
+                    <span>{formatCurrency(item.price_at_purchase*item.quantity)}</span>
                   </div>
                 ))}
               </div>

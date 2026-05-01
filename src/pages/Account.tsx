@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { useLang } from "@/context/LanguageContext";
 import { supabase } from "@/lib/supabase";
+import { formatCurrency } from "@/lib/formatCurrency";
 
 interface MyOrder { id:string; order_ref:string; total:number; status:string; created_at:string; }
 
@@ -66,7 +67,7 @@ export default function Account() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[order.status]??""}`}>{order.status}</span>
-                  <span className="font-bold text-sm">{order.total} MAD</span>
+                  <span className="font-bold text-sm">{formatCurrency(order.total)}</span>
                   <ChevronRight className="w-4 h-4 text-muted-foreground"/>
                 </div>
               </div>
