@@ -25,56 +25,77 @@ export default function Index() {
 
       {/* Hero */}
       <section className="bg-white">
-        {/* Full-width banner image — no container, no rounding */}
-        <img
-          src="/hero-banner.jpg"
-          alt="yassineiherb — N°1 en nutrition sportive au Maroc"
-          className="w-full h-[220px] md:h-[420px] object-cover"
-        />
 
-        {/* Text block below the image */}
-        <motion.div
-          className="max-w-7xl mx-auto py-8 px-4 space-y-5"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 border border-green-200 text-xs font-semibold px-3 py-1.5 rounded-full">
+        {/* Full-width banner — edge to edge, no container */}
+        <div className="w-full overflow-hidden">
+          <img
+            src="/hero-banner.jpg"
+            alt="yassineiherb — N°1 en nutrition sportive au Maroc"
+            className="w-full h-[200px] md:h-[420px] object-cover"
+          />
+        </div>
+
+        {/* Text content — centered below image */}
+        <div className="max-w-xl mx-auto px-4 py-10 md:py-16 flex flex-col items-center text-center gap-5">
+
+          <motion.span
+            className="inline-flex items-center gap-2 bg-green-50 text-green-700 border border-green-200 text-xs font-semibold px-3 py-1.5 rounded-full"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
             <Zap className="w-3.5 h-3.5" />
-            {lang === "fr" ? "Livraison rapide au Maroc" : "Fast delivery in Morocco"}
-          </span>
+            {lang === "fr" ? "Livraison rapide partout au Maroc" : "Fast delivery across Morocco"}
+          </motion.span>
 
-          <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-gray-900">
+          <motion.h1
+            className="font-display text-3xl md:text-5xl font-bold leading-tight text-gray-900 tracking-tight"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+          >
             {t("heroTitle")}
-          </h1>
+          </motion.h1>
 
-          <p className="font-body text-sm md:text-base text-gray-500 max-w-2xl">
+          <motion.p
+            className="font-body text-base text-gray-500 leading-relaxed"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.16 }}
+          >
             {t("heroSubtitle")}
-          </p>
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <motion.div
+            className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.24 }}
+          >
             <Link
               to="/shop"
-              className="inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-display font-bold transition-colors w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 active:scale-95 text-white px-7 py-3.5 rounded-xl font-display font-bold transition-all duration-200 w-full sm:w-auto shadow-sm hover:shadow-md"
             >
-              {t("shopNow")} <ArrowRight className="w-4 h-4" />
+              {lang === "fr" ? "Commander maintenant" : "Shop Now"}
+              <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/shop"
-              className="inline-flex items-center justify-center gap-2 border-2 border-green-700 text-green-700 hover:bg-green-50 px-6 py-3 rounded-xl font-display font-semibold transition-colors w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 border-2 border-green-700 text-green-700 hover:bg-green-50 active:scale-95 px-7 py-3.5 rounded-xl font-display font-semibold transition-all duration-200 w-full sm:w-auto"
             >
               {t("browseCategories")}
             </Link>
-          </div>
-        </motion.div>
+          </motion.div>
+
+        </div>
       </section>
 
-      {/* Floating WhatsApp button */}
+      {/* Floating WhatsApp FAB */}
       <a
         href="https://wa.me/212663422092"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg flex items-center justify-center transition-transform hover:scale-110"
+        className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95"
         aria-label="Contacter sur WhatsApp"
       >
         <MessageCircle className="w-7 h-7 text-white" />
