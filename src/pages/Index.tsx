@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Zap, Shield, Truck, Star } from "lucide-react";
+import { ArrowRight, Zap, Shield, Truck, Star, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -24,53 +24,70 @@ export default function Index() {
       <Navbar />
 
       {/* Hero */}
-      <section
-        className="relative overflow-hidden bg-cover bg-center text-white min-h-[480px] md:min-h-[560px]"
-        style={{ backgroundImage: "url('/hero-banner.jpg')" }}
-      >
-        {/* Dark green gradient overlay — left heavy so text stays readable */}
-        <div className="absolute inset-0 bg-gradient-to-r from-green-950/90 via-green-900/70 to-green-900/20" />
+      <section className="bg-white">
+        <div className="container-herb py-10 md:py-16">
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
 
-        <div className="container-herb relative py-20 md:py-32">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-
-            {/* Left — text content */}
-            <motion.div initial={{opacity:0,y:30}} animate={{opacity:1,y:0}} transition={{duration:0.6}}>
-              <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full mb-6">
+            {/* Text — top on mobile, left on desktop */}
+            <motion.div
+              className="w-full md:flex-1 space-y-5 text-center md:text-left"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55 }}
+            >
+              <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 border border-green-200 text-xs font-semibold px-3 py-1.5 rounded-full">
                 <Zap className="w-3.5 h-3.5" />
                 {lang === "fr" ? "Livraison rapide au Maroc" : "Fast delivery in Morocco"}
               </span>
-              <h1 className="font-display text-4xl md:text-6xl font-extrabold leading-tight mb-6">
+
+              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight text-gray-900">
                 {t("heroTitle")}
               </h1>
-              <p className="font-body text-lg text-green-100 mb-8 max-w-lg">
+
+              <p className="font-body text-base md:text-lg text-gray-500 max-w-xl mx-auto md:mx-0">
                 {t("heroSubtitle")}
               </p>
-              <div className="flex flex-wrap gap-4">
-                <Link to="/shop" className="inline-flex items-center gap-2 bg-white text-green-800 px-6 py-3 rounded-xl font-display font-bold hover:bg-green-50 transition-colors">
+
+              {/* CTA buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-display font-bold transition-colors w-full sm:w-auto"
+                >
                   {t("shopNow")} <ArrowRight className="w-4 h-4" />
                 </Link>
-                <Link to="/shop" className="inline-flex items-center gap-2 border-2 border-white/50 text-white px-6 py-3 rounded-xl font-display font-semibold hover:bg-white/10 transition-colors">
+                <Link
+                  to="/shop"
+                  className="inline-flex items-center justify-center gap-2 border-2 border-green-700 text-green-700 hover:bg-green-50 px-6 py-3 rounded-xl font-display font-semibold transition-colors w-full sm:w-auto"
+                >
                   {t("browseCategories")}
                 </Link>
               </div>
+
+              {/* WhatsApp button */}
+              <a
+                href="https://wa.me/212663422092"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-6 py-3 rounded-xl font-semibold transition-colors w-full sm:w-auto"
+              >
+                <MessageCircle className="w-5 h-5 flex-shrink-0" />
+                Contacter sur WhatsApp
+              </a>
             </motion.div>
 
-            {/* Right — subtle decorative badge (desktop only) */}
+            {/* Image — bottom on mobile, right on desktop */}
             <motion.div
-              className="hidden md:flex justify-center items-center"
-              initial={{opacity:0, scale:0.85}}
-              animate={{opacity:1, scale:1}}
-              transition={{duration:0.7, delay:0.2}}
+              className="w-full md:flex-1"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
             >
-              <div className="relative">
-                <div className="w-36 h-36 rounded-full bg-white/10 backdrop-blur-sm border border-white/25 flex flex-col items-center justify-center text-center shadow-xl">
-                  <span className="text-4xl font-extrabold text-white leading-none">N°1</span>
-                  <span className="text-xs text-green-200 font-semibold mt-1 tracking-wide">au Maroc</span>
-                </div>
-                <div className="absolute -top-5 -right-5 w-16 h-16 rounded-full bg-green-400/20 backdrop-blur-sm border border-green-300/20" />
-                <div className="absolute -bottom-4 -left-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/10" />
-              </div>
+              <img
+                src="/hero-banner.jpg"
+                alt="yassineiherb — N°1 en nutrition sportive au Maroc"
+                className="w-full h-auto object-contain rounded-2xl shadow-xl"
+              />
             </motion.div>
 
           </div>
