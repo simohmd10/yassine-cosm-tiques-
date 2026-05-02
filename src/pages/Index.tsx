@@ -26,14 +26,15 @@ export default function Index() {
       {/* Hero */}
       <section className="bg-white">
 
-        {/* Full-width banner — edge to edge, no container */}
-        <div className="w-full overflow-hidden">
-          <img
-            src="/hero-banner.jpg"
-            alt="yassineiherb — N°1 en nutrition sportive au Maroc"
-            className="w-full h-[200px] md:h-[420px] object-cover"
-          />
-        </div>
+        {/* 1280×473 wide banner — true edge-to-edge, no wrapper, no rounding */}
+        <img
+          src="/hero-banner.jpg"
+          alt="yassineiherb — N°1 en nutrition sportive au Maroc"
+          width={1280}
+          height={473}
+          className="w-full h-[200px] sm:h-[280px] md:h-[420px] object-cover block"
+          style={{ maxHeight: 473 }}
+        />
 
         {/* Text content — centered below image */}
         <div className="max-w-xl mx-auto px-4 py-10 md:py-16 flex flex-col items-center text-center gap-5">
