@@ -25,74 +25,60 @@ export default function Index() {
 
       {/* Hero */}
       <section className="bg-white">
-        <div className="container-herb py-10 md:py-16">
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+        {/* Full-width banner image — no container, no rounding */}
+        <img
+          src="/hero-banner.jpg"
+          alt="yassineiherb — N°1 en nutrition sportive au Maroc"
+          className="w-full h-[220px] md:h-[420px] object-cover"
+        />
 
-            {/* Text — top on mobile, left on desktop */}
-            <motion.div
-              className="w-full md:flex-1 space-y-5 text-center md:text-left"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55 }}
+        {/* Text block below the image */}
+        <motion.div
+          className="max-w-7xl mx-auto py-8 px-4 space-y-5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 border border-green-200 text-xs font-semibold px-3 py-1.5 rounded-full">
+            <Zap className="w-3.5 h-3.5" />
+            {lang === "fr" ? "Livraison rapide au Maroc" : "Fast delivery in Morocco"}
+          </span>
+
+          <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-gray-900">
+            {t("heroTitle")}
+          </h1>
+
+          <p className="font-body text-sm md:text-base text-gray-500 max-w-2xl">
+            {t("heroSubtitle")}
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              to="/shop"
+              className="inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-display font-bold transition-colors w-full sm:w-auto"
             >
-              <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 border border-green-200 text-xs font-semibold px-3 py-1.5 rounded-full">
-                <Zap className="w-3.5 h-3.5" />
-                {lang === "fr" ? "Livraison rapide au Maroc" : "Fast delivery in Morocco"}
-              </span>
-
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight text-gray-900">
-                {t("heroTitle")}
-              </h1>
-
-              <p className="font-body text-base md:text-lg text-gray-500 max-w-xl mx-auto md:mx-0">
-                {t("heroSubtitle")}
-              </p>
-
-              {/* CTA buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-                <Link
-                  to="/shop"
-                  className="inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-display font-bold transition-colors w-full sm:w-auto"
-                >
-                  {t("shopNow")} <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  to="/shop"
-                  className="inline-flex items-center justify-center gap-2 border-2 border-green-700 text-green-700 hover:bg-green-50 px-6 py-3 rounded-xl font-display font-semibold transition-colors w-full sm:w-auto"
-                >
-                  {t("browseCategories")}
-                </Link>
-              </div>
-
-              {/* WhatsApp button */}
-              <a
-                href="https://wa.me/212663422092"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white px-6 py-3 rounded-xl font-semibold transition-colors w-full sm:w-auto"
-              >
-                <MessageCircle className="w-5 h-5 flex-shrink-0" />
-                Contacter sur WhatsApp
-              </a>
-            </motion.div>
-
-            {/* Image — bottom on mobile, right on desktop */}
-            <motion.div
-              className="w-full md:flex-1"
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
+              {t("shopNow")} <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/shop"
+              className="inline-flex items-center justify-center gap-2 border-2 border-green-700 text-green-700 hover:bg-green-50 px-6 py-3 rounded-xl font-display font-semibold transition-colors w-full sm:w-auto"
             >
-              <img
-                src="/hero-banner.jpg"
-                alt="yassineiherb — N°1 en nutrition sportive au Maroc"
-                className="w-full h-auto object-contain rounded-2xl shadow-xl"
-              />
-            </motion.div>
-
+              {t("browseCategories")}
+            </Link>
           </div>
-        </div>
+        </motion.div>
       </section>
+
+      {/* Floating WhatsApp button */}
+      <a
+        href="https://wa.me/212663422092"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg flex items-center justify-center transition-transform hover:scale-110"
+        aria-label="Contacter sur WhatsApp"
+      >
+        <MessageCircle className="w-7 h-7 text-white" />
+      </a>
 
       {/* Trust badges */}
       <section className="border-b border-green-100 bg-green-50">
