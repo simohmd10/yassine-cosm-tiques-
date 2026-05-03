@@ -9,10 +9,6 @@ interface AdminAuthContextType {
 
 const AdminAuthContext = createContext<AdminAuthContextType|null>(null);
 const GENERIC_LOGIN_ERROR = "Email ou mot de passe invalide.";
-function getDeviceFingerprint() {
-  if (typeof navigator === "undefined") return "unknown";
-  return navigator.userAgent.slice(0, 180);
-}
 
 async function fetchIsAdmin(userId:string):Promise<boolean> {
   const {data}=await supabase.from("profiles").select("role").eq("id",userId).single();
@@ -36,24 +32,11 @@ export function AdminAuthProvider({children}:{children:React.ReactNode}){
   },[]);
 
   const login=async(email:string,password:string)=>{
-    const { data, error } = await supabase.functions.invoke<{
-      ok:boolean;
-      session?:{ access_token:string; refresh_token:string; };
-      error?:string;
-    }>("admin-login", {
-      body: { email, password, deviceFingerprint: getDeviceFingerprint() },
-    });
-    if (error || !data?.ok || !data.session) return { ok:false, error:GENERIC_LOGIN_ERROR };
-    const { error: setSessionError } = await supabase.auth.setSession({
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-    });
-    if (setSessionError) return { ok:false, error:GENERIC_LOGIN_ERROR };
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) return { ok:false, error:GENERIC_LOGIN_ERROR };
-    const admin=await fetchIsAdmin(userData.user.id);
-    if(!admin){ await supabase.auth.signOut(); return { ok:false, error:GENERIC_LOGIN_ERROR }; }
-    setIsAuthenticated(true); setUserEmail(userData.user.email??null);
+    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    if (error || !data.user || !data.session) return { ok:false, error:GENERIC_LOGIN_ERROR };
+    const admin = await fetchIsAdmin(data.user.id);
+    if (!admin) { await supabase.auth.signOut(); return { ok:false, error:GENERIC_LOGIN_ERROR }; }
+    setIsAuthenticated(true); setUserEmail(data.user.email??null);
     return { ok:true };
   };
 
