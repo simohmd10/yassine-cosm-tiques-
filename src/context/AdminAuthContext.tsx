@@ -16,6 +16,11 @@ async function fetchIsAdmin(userId:string):Promise<boolean> {
   return data?.role==="admin";
 }
 
+async function fetchProfile(userId:string):Promise<{role:string}|null> {
+  const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
+  return data ?? null;
+}
+
 export function AdminAuthProvider({children}:{children:React.ReactNode}){
   const [isAuthenticated,setIsAuthenticated]=useState(false);
   const [isLoading,setIsLoading]=useState(true);
@@ -35,16 +40,27 @@ export function AdminAuthProvider({children}:{children:React.ReactNode}){
 
   const login=async(email:string,password:string)=>{
     if (cooldown > 0) return { ok:false, error:`Trop de tentatives. Réessayez dans ${cooldown}s.` };
+
+    // Step 1 — Authenticate
     const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (error || !data.user || !data.session) {
-      // 15-second client-side cooldown after failure (server-side rate limit via Supabase Auth settings)
       setCooldown(15);
       const t = setInterval(()=>setCooldown(c=>{ if(c<=1){clearInterval(t);return 0;} return c-1; }),1000);
       return { ok:false, error:GENERIC_LOGIN_ERROR };
     }
-    const admin = await fetchIsAdmin(data.user.id);
-    if (!admin) { await supabase.auth.signOut(); return { ok:false, error:GENERIC_LOGIN_ERROR }; }
-    setIsAuthenticated(true); setUserEmail(data.user.email??null);
+
+    // Step 2 — Fetch profile
+    const profile = await fetchProfile(data.user.id);
+
+    // Step 3 — Authorization: block non-admin before any redirect
+    if (profile?.role !== "admin") {
+      await supabase.auth.signOut();
+      return { ok:false, error:GENERIC_LOGIN_ERROR };
+    }
+
+    // Step 4 — Grant access
+    setIsAuthenticated(true);
+    setUserEmail(data.user.email ?? null);
     return { ok:true };
   };
 
