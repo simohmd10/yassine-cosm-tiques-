@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle, ArrowLeft, Banknote, Tag, Copy, Check } from "lucide-react";
+import { CheckCircle, ArrowLeft, Banknote, Tag, Copy, Check, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import { useLang } from "@/context/LanguageContext";
 import { insertOrder, validateCoupon } from "@/hooks/useOrders";
+import { useProducts } from "@/hooks/useProducts";
 import { COUNTRIES } from "@/data/countries";
 import { formatCurrency } from "@/lib/formatCurrency";
 
@@ -41,6 +42,7 @@ function CopyBtn({ value }: { value: string }) {
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
   const { lang, t } = useLang();
+  const { data: liveProducts = [] } = useProducts();
   const [placed,       setPlaced]       = useState(false);
   const [orderRef,     setOrderRef]     = useState("");
   const [accessToken,  setAccessToken]  = useState("");
@@ -55,6 +57,15 @@ export default function Checkout() {
 
   const { register, handleSubmit, formState:{ errors, isSubmitting } } =
     useForm<FormData>({ resolver: zodResolver(schema), defaultValues:{ country:"MA" } });
+
+  const stockErrors: { name: string; available: number; requested: number }[] = liveProducts.length > 0
+    ? items.flatMap(({ product, quantity }) => {
+        const live = liveProducts.find(p => p.id === product.id);
+        if (live && live.stock < quantity) return [{ name: product.name, available: live.stock, requested: quantity }];
+        return [];
+      })
+    : [];
+  const hasStockError = stockErrors.length > 0;
 
   const applyCoupon = async () => {
     const res = await validateCoupon(couponCode, totalPrice);
@@ -163,6 +174,9 @@ export default function Checkout() {
                             <label className="text-xs uppercase tracking-wider text-muted-foreground">{f.label}</label>
                             <input type={f.type} placeholder={f.ph} {...register(f.name as keyof FormData)}
                               className={`h-11 px-4 rounded-xl border bg-card text-sm focus:outline-none focus:ring-2 transition-all ${errors[f.name as keyof FormData]?"border-destructive focus:ring-destructive/30":"border-border focus:ring-primary/30"}`}/>
+                            {errors[f.name as keyof FormData] && (
+                              <p className="text-xs text-destructive">{f.name==="email"?t("emailInvalid"):t("phoneTooShort")}</p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -182,7 +196,10 @@ export default function Checkout() {
                             <div key={f.name} className="flex flex-col gap-1">
                               <label className="text-xs uppercase tracking-wider text-muted-foreground">{f.label}</label>
                               <input placeholder={f.ph} {...register(f.name as keyof FormData)}
-                                className={`h-11 px-4 rounded-xl border bg-card text-sm focus:outline-none focus:ring-2 transition-all ${errors[f.name as keyof FormData]?"border-destructive":"border-border focus:ring-primary/30"}`}/>
+                                className={`h-11 px-4 rounded-xl border bg-card text-sm focus:outline-none focus:ring-2 transition-all ${errors[f.name as keyof FormData]?"border-destructive focus:ring-destructive/30":"border-border focus:ring-primary/30"}`}/>
+                              {errors[f.name as keyof FormData] && (
+                                <p className="text-xs text-destructive">{t("nameTooShort")}</p>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -190,7 +207,10 @@ export default function Checkout() {
                           <div key={f.name} className="flex flex-col gap-1">
                             <label className="text-xs uppercase tracking-wider text-muted-foreground">{f.label}</label>
                             <input placeholder={f.ph} {...register(f.name as keyof FormData)}
-                              className={`h-11 px-4 rounded-xl border bg-card text-sm focus:outline-none focus:ring-2 transition-all ${errors[f.name as keyof FormData]?"border-destructive":"border-border focus:ring-primary/30"}`}/>
+                              className={`h-11 px-4 rounded-xl border bg-card text-sm focus:outline-none focus:ring-2 transition-all ${errors[f.name as keyof FormData]?"border-destructive focus:ring-destructive/30":"border-border focus:ring-primary/30"}`}/>
+                            {errors[f.name as keyof FormData] && (
+                              <p className="text-xs text-destructive">{f.name==="address"?t("addressTooShort"):t("fieldRequired")}</p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -247,9 +267,20 @@ export default function Checkout() {
                         </div>
                       </div>
 
+                      {hasStockError && (
+                        <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-800 flex gap-2">
+                          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"/>
+                          <div>
+                            <p className="font-medium mb-1">{t("stockCheckFailed")}</p>
+                            {stockErrors.map(e => (
+                              <p key={e.name}>{e.name}: {lang==="fr"?`${e.available} disponible(s)`:`${e.available} available`}</p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       {orderError && <div className="mb-4 p-3 rounded-xl bg-destructive/5 border border-destructive/30 text-xs text-destructive">{orderError}</div>}
 
-                      <button type="submit" disabled={isSubmitting}
+                      <button type="submit" disabled={isSubmitting || hasStockError}
                         className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-display font-bold hover:bg-primary/90 transition-colors disabled:opacity-60">
                         {isSubmitting ? (
                           <span className="flex items-center justify-center gap-2">
