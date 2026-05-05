@@ -91,7 +91,9 @@ export async function lookupOrder(orderRef:string, accessToken:string): Promise<
 }
 
 export async function validateCoupon(code:string, cartTotal:number): Promise<{valid:boolean;discount:number;type:string;message?:string}> {
-  const { data, error } = await supabase.from("coupons").select("*").eq("code", code.toUpperCase()).eq("is_active", true).single();
+  const { data, error } = await supabase.from("coupons")
+    .select("discount_type, discount_value, min_order_amount, expires_at")
+    .eq("code", code.toUpperCase()).eq("is_active", true).single();
   if (error || !data) return { valid:false, discount:0, type:"", message:"Code promo invalide" };
   const now = new Date();
   if (data.expires_at && new Date(data.expires_at) < now) return { valid:false, discount:0, type:"", message:"Code promo expiré" };
@@ -181,6 +183,7 @@ export async function updateReviewStatus(id: string, status: ReviewStatus): Prom
 export async function submitReview(review: Omit<Review, "id" | "created_at">): Promise<void> {
   const comment = review.comment?.trim() ?? "";
   if (!comment) throw new Error("Le commentaire ne peut pas être vide.");
+  if (comment.length > 1000) throw new Error("Commentaire trop long (max 1000 caractères).");
   const payload = {
     product_id: review.product_id,
     user_id:    review.user_id,

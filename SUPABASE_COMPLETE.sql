@@ -331,7 +331,8 @@ BEGIN
   -- Insert
   INSERT INTO public.customers (id, name, email, phone, address) VALUES (v_customer_id, p_customer_name, p_email, p_phone, p_address);
   INSERT INTO public.orders (id, order_ref, idempotency_key, access_token, customer_id, customer_email, status, total, payment_method, coupon_code, discount_amount)
-  VALUES (p_order_id, p_order_ref, v_idem_key, gen_random_uuid(), v_customer_id, lower(trim(p_email)), p_status, v_verified_total, p_payment_method, p_coupon_code, COALESCE(p_discount_amount,0))
+  -- SECURITY: status always hardcoded to 'pending' — never trust p_status from client
+  VALUES (p_order_id, p_order_ref, v_idem_key, gen_random_uuid(), v_customer_id, lower(trim(p_email)), 'pending', v_verified_total, p_payment_method, p_coupon_code, COALESCE(p_discount_amount,0))
   RETURNING access_token INTO v_access_token;
 
   -- PASS 2: insert items + deduct stock
@@ -346,8 +347,16 @@ BEGIN
     IF v_rows = 0 THEN RAISE EXCEPTION 'STOCK_RACE: "%" — please retry', v_product_name; END IF;
   END LOOP;
 
-  -- Update coupon usage
+  -- Update coupon usage — enforce max_uses atomically
   IF p_coupon_code IS NOT NULL AND p_discount_amount > 0 THEN
+    PERFORM 1 FROM public.coupons
+      WHERE code = upper(p_coupon_code)
+        AND is_active = true
+        AND (max_uses IS NULL OR used_count < max_uses)
+      FOR UPDATE;
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'COUPON_MAXED: Ce code promo a atteint sa limite d''utilisation';
+    END IF;
     UPDATE public.coupons SET used_count = used_count + 1 WHERE code = upper(p_coupon_code);
   END IF;
 

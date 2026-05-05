@@ -12,7 +12,7 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAdminAuth();
+  const { login, loginCooldown } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,9 +94,9 @@ export default function AdminLogin() {
             <Button
               type="submit"
               className="w-full h-11 bg-rose-500 hover:bg-rose-600 text-white"
-              disabled={loading}
+              disabled={loading || loginCooldown > 0}
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loginCooldown > 0 ? `Réessayez dans ${loginCooldown}s` : loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
 

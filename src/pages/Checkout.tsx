@@ -17,14 +17,14 @@ const ORDER_SESSION_PREFIX = "order_session_";
 const ORDER_TOKEN_TTL_MS = 90 * 60 * 1000; // 90 minutes
 
 const schema = z.object({
-  email:     z.string().email(),
-  firstName: z.string().min(2),
-  lastName:  z.string().min(2),
-  phone:     z.string().min(8).regex(/^[\d\s\+\-\(\)]+$/),
-  address:   z.string().min(5),
-  city:      z.string().min(2),
-  country:   z.string().min(2),
-  zip:       z.string().optional(),
+  email:     z.string().email().max(254),
+  firstName: z.string().min(2).max(50),
+  lastName:  z.string().min(2).max(50),
+  phone:     z.string().min(8).max(20).regex(/^[\d\s\+\-\(\)]+$/),
+  address:   z.string().min(5).max(200),
+  city:      z.string().min(2).max(100),
+  country:   z.string().min(2).max(2),
+  zip:       z.string().max(10).optional(),
 });
 type FormData = z.infer<typeof schema>;
 
