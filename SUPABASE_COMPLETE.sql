@@ -325,8 +325,22 @@ BEGIN
     v_verified_total := v_verified_total + (v_unit_price * v_quantity);
   END LOOP;
 
-  -- Apply discount
-  v_verified_total := GREATEST(0, v_verified_total - COALESCE(p_discount_amount, 0));
+  -- Validate and apply coupon discount — MUST happen before INSERT
+  -- SECURITY: discount only applied when a valid coupon code is provided and verified
+  IF p_coupon_code IS NOT NULL AND p_discount_amount > 0 THEN
+    PERFORM 1 FROM public.coupons
+      WHERE code = upper(p_coupon_code)
+        AND is_active = true
+        AND (max_uses IS NULL OR used_count < max_uses)
+      FOR UPDATE;
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'COUPON_MAXED: Ce code promo a atteint sa limite d''utilisation';
+    END IF;
+    -- Discount capped at verified cart total — cannot go below zero
+    v_verified_total := GREATEST(0, v_verified_total - COALESCE(p_discount_amount, 0));
+    UPDATE public.coupons SET used_count = used_count + 1 WHERE code = upper(p_coupon_code);
+  END IF;
+  -- SECURITY: if no valid coupon_code, p_discount_amount is ignored entirely
 
   -- Insert
   INSERT INTO public.customers (id, name, email, phone, address) VALUES (v_customer_id, p_customer_name, p_email, p_phone, p_address);
@@ -346,19 +360,6 @@ BEGIN
     GET DIAGNOSTICS v_rows = ROW_COUNT;
     IF v_rows = 0 THEN RAISE EXCEPTION 'STOCK_RACE: "%" — please retry', v_product_name; END IF;
   END LOOP;
-
-  -- Update coupon usage — enforce max_uses atomically
-  IF p_coupon_code IS NOT NULL AND p_discount_amount > 0 THEN
-    PERFORM 1 FROM public.coupons
-      WHERE code = upper(p_coupon_code)
-        AND is_active = true
-        AND (max_uses IS NULL OR used_count < max_uses)
-      FOR UPDATE;
-    IF NOT FOUND THEN
-      RAISE EXCEPTION 'COUPON_MAXED: Ce code promo a atteint sa limite d''utilisation';
-    END IF;
-    UPDATE public.coupons SET used_count = used_count + 1 WHERE code = upper(p_coupon_code);
-  END IF;
 
   PERFORM _audit('order_placed', p_order_id, p_order_ref, p_email,
     jsonb_build_object('verified_total',v_verified_total,'item_count',v_count,'coupon',p_coupon_code));
