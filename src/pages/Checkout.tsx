@@ -51,7 +51,7 @@ export default function Checkout() {
   const [orderError,   setOrderError]   = useState<string|null>(null);
 
   const orderId  = useState(() => crypto.randomUUID())[0];
-  const ref      = useState(() => `IH-${Date.now().toString(36).toUpperCase().slice(-6)}`)[0];
+  const ref      = useState(() => crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase())[0];
 
   const { register, handleSubmit, formState:{ errors, isSubmitting } } =
     useForm<FormData>({ resolver: zodResolver(schema), defaultValues:{ country:"MA" } });
