@@ -31,9 +31,9 @@ export default function Contact() {
             <div className="space-y-6">
               {[
                 { icon: Mail,    label: "Email",    value: "contact@iherbyassine.ma", href:"mailto:contact@iherbyassine.ma" },
-                { icon: Phone,   label: fr?"Téléphone":"Phone",   value: "+212 6XX XXX XXX", href:"tel:+212600000000" },
+                { icon: Phone,   label: fr?"Téléphone":"Phone",   value: "+212 663 422 092", href:"tel:+212663422092" },
                 { icon: MapPin,  label: fr?"Livraison":"Delivery", value: fr?"Partout au Maroc":"Across Morocco", href:null },
-                { icon: MessageSquare, label:"WhatsApp", value:"+212 6XX XXX XXX", href:"https://wa.me/212600000000" },
+                { icon: MessageSquare, label:"WhatsApp", value:"+212 663 422 092", href:"https://wa.me/212663422092" },
               ].map(({ icon:Icon, label, value, href }) => (
                 <div key={label} className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
