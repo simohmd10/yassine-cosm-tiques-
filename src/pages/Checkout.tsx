@@ -169,7 +169,7 @@ export default function Checkout() {
                     <section>
                       <h2 className="font-display text-lg font-semibold text-foreground mb-4">{t("contactInfo")}</h2>
                       <div className="space-y-4">
-                        {[{name:"email",label:t("email"),type:"email",ph:"exemple@email.com"},{name:"phone",label:t("phone"),type:"tel",ph:"+212 6XX XXX XXX"}].map(f=>(
+                        {[{name:"email",label:t("email"),type:"email",ph:"exemple@email.com"},{name:"phone",label:t("phone"),type:"tel",ph:"+212 663 422 092"}].map(f=>(
                           <div key={f.name} className="flex flex-col gap-1">
                             <label className="text-xs uppercase tracking-wider text-muted-foreground">{f.label}</label>
                             <input type={f.type} placeholder={f.ph} {...register(f.name as keyof FormData)}
