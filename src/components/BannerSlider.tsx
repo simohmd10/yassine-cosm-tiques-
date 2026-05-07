@@ -16,7 +16,7 @@ const SLIDES = [
     alt: "BOGO 40% Off sur les marques Iherbyassine — ingrédients testés, qualité de confiance.",
   },
   {
-    src: "/banners/banner-4.png",
+    src: "/banners/banner-4.jpg",
     alt: "Votre santé, notre priorité — Compléments alimentaires naturels pour votre bien-être.",
   },
 ];
