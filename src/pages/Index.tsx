@@ -92,6 +92,7 @@ export default function Index() {
         aria-label="Contacter sur WhatsApp"
       >
         <MessageCircle className="w-7 h-7 text-white" />
+        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-white text-[10px] font-bold leading-none">1</span>
       </a>
 
       {/* Trust badges */}
