@@ -13,7 +13,6 @@ export interface ProductRow {
   badge: string | null; badge_fr: string | null;
   is_featured: boolean; is_best_seller: boolean;
   stock: number; flavors: string[] | null; weight: string | null;
-  related_products: string[] | null;
   created_at: string;
 }
 
@@ -28,7 +27,6 @@ export function toProduct(row: ProductRow): Product {
     isFeatured: row.is_featured, isBestSeller: row.is_best_seller,
     stock: row.stock ?? 0,
     flavors: row.flavors ?? undefined, weight: row.weight ?? undefined,
-    relatedProducts: row.related_products ?? undefined,
   };
 }
 
@@ -43,7 +41,6 @@ export function toRow(p: Omit<Product, "id">): Omit<ProductRow, "id" | "created_
     is_featured: Boolean(p.isFeatured), is_best_seller: Boolean(p.isBestSeller),
     stock: Number(p.stock ?? 0),
     flavors: p.flavors ?? null, weight: p.weight ?? null,
-    related_products: p.relatedProducts ?? null,
   };
 }
 
